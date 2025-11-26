@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -o errexit
 
-echo "🔧 Installing dependencies..."
+echo "🔧 Instalando dependencias..."
 pip install -r requirements.txt
 
-echo "📁 Collecting static files..."
+echo "📁 Colectando archivos estáticos..."
 python manage.py collectstatic --no-input
 
-echo "🗃️ Applying database migrations..."
+echo "🗃️ Aplicando migraciones..."
 python manage.py migrate
 
-echo "👤 Creating superuser..."
+echo "👤 Creando superusuario automáticamente..."
 python manage.py crear_superusuario
 
-echo "✅ Build completed successfully!"
+echo "✅ Build completado exitosamente!"
