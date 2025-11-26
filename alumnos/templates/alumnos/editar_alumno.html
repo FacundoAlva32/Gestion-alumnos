@@ -1,0 +1,30 @@
+{% extends 'usuarios/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Alumno - Sistema de Alumnos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white">
+                <h4 class="card-title mb-0">Editar Alumno: {{ alumno.nombre }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-warning">
+                            Actualizar Alumno
+                        </button>
+                        <a href="{% url 'lista_alumnos' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'usuarios/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Enviar PDF - Sistema de Alumnos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-header bg-dark text-white border-success">
+                <h4 class="card-title mb-0">Enviar PDF por Email</h4>
+            </div>
+            <div class="card-body bg-dark">
+                <div class="alert alert-info border-info">
+                    <h6>Alumno: {{ alumno.nombre }}</h6>
+                    <p class="mb-0">Carrera: {{ alumno.carrera }} | Estado: {{ alumno.get_estado_display }}</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-light">Email destino</label>
+                        {{ form.email_destino }}
+                        <div class="form-text text-muted">
+                            Ingresa cualquier dirección de email (Gmail, Outlook, Yahoo, etc.)
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            📧 Enviar PDF
+                        </button>
+                        <a href="{% url 'lista_alumnos' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+
+                <div class="mt-4">
+                    <h6 class="text-light">Emails sugeridos:</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <!-- Email del ALUMNO -->
+                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                onclick="document.getElementById('id_email_destino').value = '{{ alumno.email }}'">
+                            Alumno: {{ alumno.email }}
+                        </button>
+                        
+                        <!-- Email del USUARIO -->
+                        <button type="button" class="btn btn-outline-info btn-sm" 
+                                onclick="document.getElementById('id_email_destino').value = '{{ request.user.email }}'">
+                            Mi email: {{ request.user.email }}
+                        </button>
+                        
+                        <!-- Botón limpiar -->
+                        <button type="button" class="btn btn-outline-warning btn-sm" 
+                                onclick="document.getElementById('id_email_destino').value = ''">
+                            Limpiar
+                        </button>
+                    </div>
+                    
+                    <!-- Información adicional -->
+                    <div class="mt-3 p-3 bg-dark border border-secondary rounded">
+                        <small class="text-muted">
+                            <strong>💡 Información:</strong><br>
+                            • <strong>Email del alumno</strong>: Se usará para autocompletar el formulario<br>
+                            • <strong>Tu email</strong>: Disponible como opción alternativa<br>
+                            • Puedes ingresar cualquier otro email manualmente
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.form-control {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    border: 1px solid var(--bs-gray-700);
+}
+
+.btn-outline-primary, .btn-outline-info, .btn-outline-warning {
+    border-color: var(--bs-gray-600);
+    color: var(--bs-light);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-info:hover {
+    background-color: var(--bs-info);
+    border-color: var(--bs-info);
+}
+
+.btn-outline-warning:hover {
+    background-color: var(--bs-warning);
+    border-color: var(--bs-warning);
+    color: var(--bs-dark);
+}
+</style>
+{% endblock %}

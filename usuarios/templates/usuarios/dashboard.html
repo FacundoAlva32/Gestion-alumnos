@@ -1,0 +1,207 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Dashboard - Sistema de Alumnos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-1 text-light">Dashboard</h1>
+                <p class="lead text-muted">Bienvenido al sistema de gestión de alumnos, {{ user.username }}</p>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Último acceso: {% now "d/m/Y H:i" %}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Principales -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-dark text-white border-primary">
+            <div class="card-body text-center">
+                <h2 class="display-4">{{ total_alumnos }}</h2>
+                <p class="mb-0">Total Alumnos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark text-white border-success">
+            <div class="card-body text-center">
+                <h2 class="display-4">{{ alumnos_activos }}</h2>
+                <p class="mb-0">Alumnos Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark text-white border-warning">
+            <div class="card-body text-center">
+                <h2 class="display-4">{{ alumnos_inactivos }}</h2>
+                <p class="mb-0">Alumnos Inactivos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark text-white border-info">
+            <div class="card-body text-center">
+                <h2 class="display-4">{{ alumnos_egresados }}</h2>
+                <p class="mb-0">Alumnos Egresados</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Acciones Rápidas -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-header bg-dark text-white border-secondary">
+                <h5 class="card-title mb-0">Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{% url 'agregar_alumno' %}" class="btn btn-primary w-100 h-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <span style="font-size: 2rem;">➕</span>
+                                <span class="mt-2">Agregar Alumno</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'lista_alumnos' %}" class="btn btn-success w-100 h-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <span style="font-size: 2rem;">👨‍🎓</span>
+                                <span class="mt-2">Ver Alumnos</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'scraper_buscar' %}" class="btn btn-info w-100 h-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <span style="font-size: 2rem;">🔍</span>
+                                <span class="mt-2">Buscar en Wikipedia</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'logout' %}" class="btn btn-secondary w-100 h-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <span style="font-size: 2rem;">🚪</span>
+                                <span class="mt-2">Cerrar Sesión</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos Alumnos Agregados -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-header bg-dark text-white border-success">
+                <h5 class="card-title mb-0">Últimos Alumnos Agregados</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_alumnos %}
+                <div class="list-group">
+                    {% for alumno in ultimos_alumnos %}
+                    <div class="list-group-item bg-dark text-light border-secondary">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ alumno.nombre }}</h6>
+                            <small class="text-muted">{{ alumno.fecha_creacion|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ alumno.carrera }}</p>
+                        <small class="text-muted">
+                            <span class="badge 
+                                {% if alumno.estado == 'activo' %}bg-success
+                                {% elif alumno.estado == 'inactivo' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ alumno.get_estado_display }}
+                            </span>
+                            • {{ alumno.email }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No hay alumnos registrados aún.</p>
+                    <a href="{% url 'agregar_alumno' %}" class="btn btn-primary">
+                        Agregar Primer Alumno
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información del Sistema -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-header bg-dark border-secondary">
+                <h5 class="card-title mb-0 text-light">Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="text-light">Funcionalidades Disponibles</h6>
+                        <ul class="list-unstyled text-muted">
+                            <li>✅ Gestión completa de alumnos</li>
+                            <li>✅ Generación de reportes PDF</li>
+                            <li>✅ Envío de PDFs por email</li>
+                            <li>✅ Búsqueda en Wikipedia</li>
+                            <li>✅ Envío de resultados por email</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-light">Estadísticas de Uso</h6>
+                        <ul class="list-unstyled text-muted">
+                            <li>📊 Total alumnos: {{ total_alumnos }}</li>
+                            <li>📈 Activos: {{ alumnos_activos }}</li>
+                            <li>📉 Inactivos: {{ alumnos_inactivos }}</li>
+                            <li>🎓 Egresados: {{ alumnos_egresados }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-light">Accesos Directos</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'lista_alumnos' %}" class="btn btn-outline-primary btn-sm">Ver Todos los Alumnos</a>
+                            <a href="{% url 'scraper_buscar' %}" class="btn btn-outline-info btn-sm">Buscar en Wikipedia</a>
+                            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary btn-sm">Administración</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.list-group-item {
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.display-4 {
+    font-weight: 300;
+}
+
+.bg-dark {
+    background-color: var(--bs-dark) !important;
+}
+</style>
+{% endblock %}

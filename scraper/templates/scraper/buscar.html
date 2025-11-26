@@ -1,0 +1,166 @@
+{% extends 'usuarios/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Buscador Wikipedia - Sistema de Alumnos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-1">Buscador Wikipedia</h1>
+                <p class="lead text-muted">Busca información educativa en Wikipedia en español</p>
+            </div>
+            {% if total_resultados > 0 %}
+            <div class="text-end">
+                <span class="badge bg-success fs-6">
+                    {{ total_resultados }} resultado{{ total_resultados|pluralize }}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"> Realizar Búsqueda</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"> Tema a buscar</label>
+                        {{ form.palabra_clave }}
+                        <div class="form-text">
+                            Ejemplos: Inteligencia artificial, Albert Einstein, Física cuántica...
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold"> Enviar a Gmail (opcional)</label>
+                        {{ form.email_destino }}
+                        <div class="form-text">
+                            Si ingresas un email, recibirás los resultados en tu correo
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        Buscar en Wikipedia
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <!-- Resultados -->
+        {% if resultados %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    Resultados para: "{{ palabra_clave }}"
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">Título</th>
+                                <th width="45%">Resumen</th>
+                                <th width="15%">Fuente</th>
+                                <th width="10%">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resultado in resultados %}
+                            <tr>
+                                <td class="fw-bold text-center">{{ forloop.counter }}</td>
+                                <td>
+                                    <strong class="text-primary">{{ resultado.titulo }}</strong>
+                                    {% if resultado.fecha %}
+                                    <br>
+                                    <small class="text-muted">🕒 {{ resultado.fecha }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="resumen-texto">
+                                        {{ resultado.resumen }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">🌐 Wikipedia</span>
+                                </td>
+                                <td>
+                                    <a href="{{ resultado.url }}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Abrir artículo completo">
+                                        🔗 Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Panel de acciones -->
+            <div class="card-footer bg-light">
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            Mostrando {{ resultados|length }} resultado{{ resultados|length|pluralize }}
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        {% if user.email and not form.email_destino.value %}
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="palabra_clave" value="{{ palabra_clave }}">
+                            <input type="hidden" name="email_destino" value="{{ user.email }}">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                Enviar a mi email
+                            </button>
+                        </form>
+                        {% endif %}
+                        <small class="text-muted ms-2">
+                            {% if user.email %}
+                            ({{ user.email }})
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Estado inicial o sin resultados -->
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="mb-3">
+                    <span style="font-size: 3rem;">🔍</span>
+                </div>
+                <h4 class="text-muted">Realiza una búsqueda</h4>
+                <p class="text-muted">
+                    Ingresa un tema educativo en el formulario de la izquierda y descubre información 
+                    confiable de Wikipedia.
+                </p>
+                {% if palabra_clave and not resultados %}
+                <div class="alert alert-warning mt-3">
+                    <strong>No se encontraron resultados para "{{ palabra_clave }}"</strong><br>
+                    Intenta con términos más generales o revisa la ortografía.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
