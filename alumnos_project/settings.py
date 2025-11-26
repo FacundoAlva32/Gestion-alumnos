@@ -62,7 +62,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alumnos_project.wsgi:application'
 
-# DATABASE - PostgreSQL con psycopg2
+# Database configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,14 +70,30 @@ DATABASES = {
     }
 }
 
-# Usar PostgreSQL si DATABASE_URL está disponible
-if 'DATABASE_URL' in os.environ:
+# Usar PostgreSQL en producción (Render)
+if 'RENDER' in os.environ or 'DATABASE_URL' in os.environ:
     import dj_database_url
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
         ssl_require=True
     )
+    # Forzar el engine de PostgreSQL explícitamente
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+
+# Security settings - Solo en producción
+if 'RENDER' in os.environ:
+    DEBUG = False
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+else:
+    DEBUG = True
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -112,10 +128,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
 
-# Security
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
 
 CSRF_TRUSTED_ORIGINS = [
     'https://gestion-alumnos-8oux.onrender.com',
