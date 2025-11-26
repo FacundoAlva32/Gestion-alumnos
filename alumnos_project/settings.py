@@ -1,19 +1,27 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-para-desarrollo')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-cambiar-en-produccion')
 
-# TEMPORAL: Forzar DEBUG True para solucionar el problema
-DEBUG = True
+# Debug configuration
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Hosts permitidos - más permisivo temporalmente
-ALLOWED_HOSTS = ['*']
+# Hosts permitidos
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',
+    'gestion-alumnos-8oux.onrender.com',
+]
+
+# Si estamos en Render, añadir el host dinámico
+if 'RENDER_EXTERNAL_HOSTNAME' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RENDER_EXTERNAL_HOSTNAME'])
 
 # Applications
 INSTALLED_APPS = [
@@ -71,12 +79,12 @@ DATABASES = {
 
 # PostgreSQL para Render
 if 'DATABASE_URL' in os.environ:
+    import dj_database_url
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
         ssl_require=True
     )
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -116,15 +124,20 @@ LOGIN_URL = 'login'
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Temporal para testing
+# Email Configuration (usar consola para testing)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# SEGURIDAD TEMPORALMENTE DESACTIVADA
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
+# SECURITY SETTINGS - CONFIGURACIÓN CLAVE PARA RENDER
+if 'RENDER' in os.environ:
+    # Producción en Render
+    SECURE_SSL_REDIRECT = False  # IMPORTANTE: Render ya maneja SSL
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    # Desarrollo local
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
@@ -132,5 +145,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com'
 ]
 
-# Whitenoise
+# Whitenoise configuration
 WHITENOISE_MANIFEST_STRICT = False
