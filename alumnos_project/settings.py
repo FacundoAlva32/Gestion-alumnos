@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -8,15 +9,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal')
 
-# TEMPORALMENTE en True para debugging
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1', 
     '.onrender.com',
-    'gestion-alumnos-8oux.onrender.com',
-    '*'
+    'gestion-alumnos-8oux.onrender.com'
 ]
 
 INSTALLED_APPS = [
@@ -64,7 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alumnos_project.wsgi.application'
 
-# DATABASE CONFIGURATION FOR RENDER
+# DATABASE CONFIGURATION - POSTGRESQL PARA RENDER
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -72,9 +71,13 @@ DATABASES = {
     }
 }
 
-# Fix for Render - use /tmp for database
-if 'RENDER' in os.environ:
-    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
+# Usar PostgreSQL si está disponible en Render
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+    print("✅ PostgreSQL configurado para Render")
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -118,10 +121,5 @@ CSRF_COOKIE_SECURE = False
 # CSRF FIX - DOMINIOS CONFIABLES
 CSRF_TRUSTED_ORIGINS = [
     'https://gestion-alumnos-8oux.onrender.com',
-    'https://*.onrender.com',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000'
+    'https://*.onrender.com'
 ]
-
-# Para desarrollo, permitir CSRF sin HTTPS
-CSRF_USE_SESSIONS = False
