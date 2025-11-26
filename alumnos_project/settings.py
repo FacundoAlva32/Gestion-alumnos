@@ -6,7 +6,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-para-render')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-local')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -57,26 +57,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alumnos_project.wsgi.application'
 
-# Database Configuration - VERSIÓN SEGURA PARA RENDER
+# DATABASE SIMPLE - SOLO SQLITE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# Solo intentar usar PostgreSQL si estamos en Render y la librería está disponible
-if 'RENDER' in os.environ or 'DATABASE_URL' in os.environ:
-    try:
-        import dj_database_url
-        DATABASES['default'] = dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-        print("✅ PostgreSQL configurado con dj-database-url")
-    except ImportError:
-        print("⚠️  dj-database-url no disponible, usando SQLite")
-        # En Render, si no hay PostgreSQL, fallará pero al menos el build continuará
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -117,4 +104,3 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
