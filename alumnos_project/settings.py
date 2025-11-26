@@ -9,20 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-para-desarrollo')
 
-# Configuración de DEBUG - True solo si existe la variable y es 'True'
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# TEMPORAL: Forzar DEBUG True para solucionar el problema
+DEBUG = True
 
-# Hosts permitidos
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.onrender.com',
-    'gestion-alumnos-8oux.onrender.com',
-]
-
-# Si estamos en Render, añadir el host dinámico
-if 'RENDER_EXTERNAL_HOSTNAME' in os.environ:
-    ALLOWED_HOSTS.append(os.environ['RENDER_EXTERNAL_HOSTNAME'])
+# Hosts permitidos - más permisivo temporalmente
+ALLOWED_HOSTS = ['*']
 
 # Applications
 INSTALLED_APPS = [
@@ -55,7 +46,7 @@ ROOT_URLCONF = 'alumnos_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,9 +62,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'alumnos_project.wsgi.application'
 
 # Database Configuration
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# Base de datos por defecto (SQLite para desarrollo local)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -88,7 +76,6 @@ if 'DATABASE_URL' in os.environ:
         conn_health_checks=True,
         ssl_require=True
     )
-    # Forzar el engine de PostgreSQL explícitamente
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 
 # Password validation
@@ -113,21 +100,11 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# Storage backend para static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication URLs
@@ -140,31 +117,14 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Temporal para testing
 
-# Security Settings
-# Configuración diferente para desarrollo y producción
-if DEBUG:
-    # Configuración para desarrollo
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
-else:
-    # Configuración para producción
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+# SEGURIDAD TEMPORALMENTE DESACTIVADA
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_BROWSER_XSS_FILTER = False
+SECURE_CONTENT_TYPE_NOSNIFF = False
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
@@ -172,21 +132,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com'
 ]
 
-# Whitenoise configuration
+# Whitenoise
 WHITENOISE_MANIFEST_STRICT = False
-WHITENOISE_USE_FINDERS = True
-
-# Logging configuration
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
