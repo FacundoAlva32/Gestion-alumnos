@@ -8,7 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal')
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# TEMPORALMENTE en True para debugging
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
     'localhost', 
@@ -109,7 +110,18 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
 
-# SECURITY - DESACTIVADO TEMPORALMENTE PARA RENDER
+# SECURITY - CONFIGURACIÓN PARA RENDER
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+# CSRF FIX - DOMINIOS CONFIABLES
+CSRF_TRUSTED_ORIGINS = [
+    'https://gestion-alumnos-8oux.onrender.com',
+    'https://*.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+]
+
+# Para desarrollo, permitir CSRF sin HTTPS
+CSRF_USE_SESSIONS = False
