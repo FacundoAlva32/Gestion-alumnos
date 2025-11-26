@@ -6,11 +6,17 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-local')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com']
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '.onrender.com',
+    'gestion-alumnos-8oux.onrender.com',
+    '*'
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -57,13 +63,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'alumnos_project.wsgi.application'
 
-# DATABASE SIMPLE - SOLO SQLITE
+# DATABASE CONFIGURATION FOR RENDER
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Fix for Render - use /tmp for database
+if 'RENDER' in os.environ:
+    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -99,8 +109,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
 
-# Security settings for production
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+# SECURITY - DESACTIVADO TEMPORALMENTE PARA RENDER
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
